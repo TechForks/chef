@@ -24,8 +24,13 @@ describe 'Chef::ReservedNames::Win32::File', :windows_only do
     @path = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "data", "old_home_dir", "my-dot-emacs"))
   end
 
-  it "should not leak memory" do
-    test = lambda { Chef::ReservedNames::Win32::File.symlink?(@path) }
+  it "should not leak memory", :focus do
+    test = lambda do
+      Chef::ReservedNames::Win32::File.symlink?(@path)
+      GC.start
+    end
+
+    GC.start
     test.should_not leak_memory(:warmup => 50, :iterations => 100)
   end
 
